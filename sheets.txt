@@ -1,0 +1,34 @@
+var ss = SpreadsheetApp.getActiveSpreadsheet();
+var sheet = ss.getSheetByName("Sheet1");
+
+function doGet(request) {
+  var query = request.parameter.q;
+  var parameters = 2;
+  var lastrow = sheet.getLastRow() -1;
+  var rows = [];
+  var range = sheet.getRange(2,1, lastrow, parameters);
+  var values = range.getValues();
+  
+  for(var row in values){
+    for(var col in values[row]){
+      rows.push(values[row][col]);
+    }
+  }
+  var rowstoreturn = values[Math.floor(Math.random()*values.length)];
+  return ContentService.createTextOutput(JSON.stringify({"acronym":rowstoreturn[0], "phrase": rowstoreturn[1]})).setMimeType(ContentService.MimeType.JSON);
+}
+
+
+function doPost(request){
+  var action = request.parameter.action;
+  if(action == 'addEntry'){
+    return addEntry(request);
+  }
+}
+
+function addEntry(request){
+  var entry = JSON.parse(request.postData.contents);
+  sheet.appendRow([entry.acronym, entry.phrase]);
+
+  return ContentService.createTextOutput("Success").setMimeType(ContentService.MimeType.TEXT);
+}
